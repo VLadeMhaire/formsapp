@@ -1,27 +1,160 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>New Form</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; }
-    input, select, textarea { width: 100%; padding: 8px; margin: 4px 0 12px; box-sizing: border-box; }
-    .question { border: 1px solid #ddd; padding: 12px; border-radius: 8px; margin-bottom: 12px; }
-    button { padding: 10px 16px; cursor: pointer; }
-    #result { margin-top: 16px; padding: 12px; background: #f4f4f4; border-radius: 8px; word-break: break-all; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create a form</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --blue-50:#EFF6FF;--blue-100:#DBEAFE;--blue-500:#3B82F6;--blue-600:#2563EB;--blue-700:#1D4ED8;
+    --gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;--gray-400:#9CA3AF;
+    --gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--gray-800:#1F2937;--gray-900:#111827;
+    --red-500:#EF4444;
+    --grad-ink:#071a30;--grad-violet:#0d3a68;--grad-magenta:#0f6fa8;--grad-pink:#0ea5c7;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.06);
+    --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);
+    --shadow-lg:0 10px 15px rgba(0,0,0,.08),0 4px 6px rgba(0,0,0,.05);
+    --font:'DM Sans',system-ui,sans-serif;--font-display:'Syne',sans-serif;
+    --transition:0.2s cubic-bezier(.4,0,.2,1);
+  }
+  html,body{min-height:100%;font-family:var(--font);color:var(--gray-800);background:var(--gray-100)}
+
+  .topbar{
+    display:flex;align-items:center;gap:14px;padding:16px 28px;
+    background:linear-gradient(160deg, var(--grad-ink) 0%, var(--grad-violet) 45%, var(--grad-magenta) 100%);
+    box-shadow:var(--shadow-sm);position:sticky;top:0;z-index:5;
+  }
+  .topbar-logo{
+    width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.12);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.05rem;flex-shrink:0;
+    border:1px solid rgba(255,255,255,.16);
+  }
+  .topbar-title{font-family:var(--font-display);font-weight:800;font-size:1.12rem;color:#fff;letter-spacing:-.01em}
+  .topbar-sub{font-size:.73rem;color:rgba(255,255,255,.66);margin-top:1px}
+
+  .page{max-width:720px;margin:0 auto;padding:32px 20px 64px}
+
+  .card{
+    background:#fff;border:1px solid rgba(17,24,39,.08);border-radius:16px;
+    box-shadow:var(--shadow-md);padding:22px 24px;margin-bottom:18px;
+  }
+
+  .field-label{font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gray-500);margin-bottom:6px;display:block}
+
+  input[type="text"], textarea, select{
+    width:100%;padding:11px 13px;border:1px solid var(--gray-200);border-radius:10px;
+    font-family:var(--font);font-size:.92rem;color:var(--gray-800);background:var(--gray-50);
+    transition:var(--transition);
+  }
+  input[type="text"]:focus, textarea:focus, select:focus{
+    outline:none;border-color:var(--blue-500);background:#fff;box-shadow:0 0 0 3px var(--blue-100);
+  }
+  textarea{resize:vertical;min-height:70px}
+
+  .title-input{font-family:var(--font-display);font-weight:800;font-size:1.4rem;border:none;background:transparent;padding:4px 0;color:var(--gray-900)}
+  .title-input:focus{outline:none;box-shadow:none;background:transparent}
+  .desc-input{border:none;background:transparent;padding:4px 0;min-height:auto;color:var(--gray-600);font-size:.9rem}
+  .desc-input:focus{outline:none;box-shadow:none;background:transparent}
+  .header-card{border-bottom:3px solid var(--blue-500)}
+
+  .question-card{position:relative}
+  .question-card + .question-card{margin-top:0}
+  .question-row{display:flex;gap:12px;margin-bottom:12px}
+  .question-row .field-label{margin-bottom:6px}
+  .q-grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}
+  @media (max-width:520px){.q-grid{grid-template-columns:1fr}}
+
+  .question-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+  .required-toggle{display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--gray-600);cursor:pointer;font-weight:500}
+  .required-toggle input{width:16px;height:16px;accent-color:var(--blue-600);cursor:pointer}
+
+  .icon-btn{
+    width:32px;height:32px;border-radius:9px;border:1px solid var(--gray-200);background:var(--gray-50);
+    color:var(--gray-400);display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:var(--transition);flex-shrink:0;
+  }
+  .icon-btn:hover{background:#FEF2F2;border-color:#FCA5A5;color:var(--red-500)}
+
+  .btn{
+    font-family:var(--font);font-weight:600;font-size:.85rem;padding:11px 20px;border-radius:10px;
+    cursor:pointer;transition:var(--transition);border:none;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-outline{background:#fff;border:1.5px dashed var(--gray-300);color:var(--gray-600);width:100%;justify-content:center;padding:13px}
+  .btn-outline:hover{border-color:var(--blue-400);color:var(--blue-600);background:var(--blue-50)}
+  .btn-primary{
+    background:linear-gradient(135deg, var(--grad-violet), var(--grad-magenta));color:#fff;
+    box-shadow:0 4px 12px -4px rgba(13,58,104,.5);
+  }
+  .btn-primary:hover{box-shadow:0 6px 16px -4px rgba(13,58,104,.6);transform:translateY(-1px)}
+  .btn-primary:active{transform:translateY(0)}
+
+  .actions-row{display:flex;gap:12px;margin-top:20px}
+
+  .result-card{
+    margin-top:20px;background:linear-gradient(135deg, var(--blue-50), #fff);
+    border:1px solid var(--blue-100);border-radius:16px;padding:20px 22px;display:none;
+  }
+  .result-card.show{display:block}
+  .result-card h3{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--gray-900);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .result-card h3 i{color:var(--blue-600)}
+  .result-link-row{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--gray-200);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+  .result-link-row a{color:var(--blue-700);font-weight:600;font-size:.85rem;text-decoration:none;word-break:break-all;flex:1}
+  .result-link-row a:hover{text-decoration:underline}
+  .result-link-row i{color:var(--gray-400);flex-shrink:0}
+  .copy-btn{
+    flex-shrink:0;width:30px;height:30px;border-radius:8px;border:1px solid var(--gray-200);background:var(--gray-50);
+    color:var(--gray-500);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition);
+  }
+  .copy-btn:hover{background:var(--blue-50);color:var(--blue-600);border-color:var(--blue-200)}
+  .copy-btn.copied{background:#DCFCE7;color:#166534;border-color:#BBF7D0}
+</style>
 </head>
 <body>
-  <h1>Create a form</h1>
-  <input id="title" placeholder="Form title">
-  <textarea id="description" placeholder="Description (optional)"></textarea>
+  <div class="topbar">
+    <div class="topbar-logo"><i class="fas fa-clipboard-list"></i></div>
+    <div>
+      <div class="topbar-title">Form Builder</div>
+      <div class="topbar-sub">Create a shareable form in seconds</div>
+    </div>
+  </div>
 
-  <div id="questions"></div>
-  <button type="button" onclick="addQuestion()">+ Add question</button>
-  <br><br>
-  <button type="button" onclick="createForm()">Create form</button>
+  <div class="page">
+    <div class="card header-card">
+      <label class="field-label">Form title</label>
+      <input type="text" id="title" class="title-input" placeholder="Untitled form">
+      <label class="field-label" style="margin-top:14px">Description</label>
+      <textarea id="description" class="desc-input" placeholder="Add a short description (optional)" rows="2"></textarea>
+    </div>
 
-  <div id="result" style="display:none;"></div>
+    <div id="questions"></div>
+
+    <button type="button" class="btn btn-outline" onclick="addQuestion()">
+      <i class="fas fa-plus"></i> Add question
+    </button>
+
+    <div class="actions-row">
+      <button type="button" class="btn btn-primary" onclick="createForm()">
+        <i class="fas fa-paper-plane"></i> Create form
+      </button>
+    </div>
+
+    <div id="result" class="result-card">
+      <h3><i class="fas fa-circle-check"></i> Your form is ready</h3>
+      <div class="result-link-row">
+        <i class="fas fa-link"></i>
+        <a id="shareLink" href="#" target="_blank"></a>
+        <button type="button" class="copy-btn" onclick="copyLink('shareLink', this)"><i class="fas fa-copy"></i></button>
+      </div>
+      <div class="result-link-row">
+        <i class="fas fa-chart-simple"></i>
+        <a id="resultsLink" href="#" target="_blank"></a>
+        <button type="button" class="copy-btn" onclick="copyLink('resultsLink', this)"><i class="fas fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
 
 <script>
 let qCount = 0;
@@ -29,45 +162,89 @@ let qCount = 0;
 function addQuestion() {
   qCount++;
   const div = document.createElement('div');
-  div.className = 'question';
+  div.className = 'card question-card';
   div.id = `q-${qCount}`;
   div.innerHTML = `
-    <input placeholder="Question label" class="q-label">
-    <select class="q-type">
-      <option value="text">Short answer</option>
-      <option value="textarea">Paragraph</option>
-      <option value="radio">Multiple choice</option>
-      <option value="checkbox">Checkboxes</option>
-    </select>
-    <input placeholder="Options (comma-separated, for multiple choice/checkboxes)" class="q-options">
-    <label><input type="checkbox" class="q-required"> Required</label>
+    <div class="question-row">
+      <div style="flex:1">
+        <label class="field-label">Question</label>
+        <input type="text" placeholder="e.g. What's your name?" class="q-label">
+      </div>
+      <button type="button" class="icon-btn" onclick="this.closest('.question-card').remove()" title="Remove question">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+    <div class="q-grid">
+      <div>
+        <label class="field-label">Options (for multiple choice / checkboxes)</label>
+        <input type="text" placeholder="Red, Green, Blue" class="q-options">
+      </div>
+      <div>
+        <label class="field-label">Answer type</label>
+        <select class="q-type">
+          <option value="text">Short answer</option>
+          <option value="textarea">Paragraph</option>
+          <option value="radio">Multiple choice</option>
+          <option value="checkbox">Checkboxes</option>
+        </select>
+      </div>
+    </div>
+    <div class="question-footer">
+      <label class="required-toggle">
+        <input type="checkbox" class="q-required"> Required question
+      </label>
+    </div>
   `;
   document.getElementById('questions').appendChild(div);
 }
 addQuestion();
 
 async function createForm() {
-  const questions = [...document.querySelectorAll('.question')].map(q => ({
+  const questions = [...document.querySelectorAll('.question-card')].map(q => ({
     label: q.querySelector('.q-label').value,
     field_type: q.querySelector('.q-type').value,
     options: q.querySelector('.q-options').value,
     required: q.querySelector('.q-required').checked,
-  }));
+  })).filter(q => q.label.trim().length > 0);
 
   const res = await fetch('/api/forms', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      title: document.getElementById('title').value,
+      title: document.getElementById('title').value || 'Untitled form',
       description: document.getElementById('description').value,
       questions,
     }),
   });
   const data = await res.json();
-  const resultDiv = document.getElementById('result');
-  resultDiv.style.display = 'block';
-  resultDiv.innerHTML = `Shareable link: <a href="${data.share_url}" target="_blank">${window.location.origin}${data.share_url}</a>
-    <br>Results link: <a href="${data.share_url}/results" target="_blank">${window.location.origin}${data.share_url}/results</a>`;
+
+  const shareUrl = `${window.location.origin}${data.share_url}`;
+  const resultsUrl = `${shareUrl}/results`;
+
+  const shareLink = document.getElementById('shareLink');
+  shareLink.href = shareUrl;
+  shareLink.textContent = shareUrl;
+
+  const resultsLink = document.getElementById('resultsLink');
+  resultsLink.href = resultsUrl;
+  resultsLink.textContent = resultsUrl;
+
+  const resultCard = document.getElementById('result');
+  resultCard.classList.add('show');
+  resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function copyLink(id, btn) {
+  const text = document.getElementById(id).href;
+  navigator.clipboard.writeText(text).then(() => {
+    const icon = btn.querySelector('i');
+    icon.className = 'fas fa-check';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      icon.className = 'fas fa-copy';
+      btn.classList.remove('copied');
+    }, 1500);
+  });
 }
 </script>
 </body>
