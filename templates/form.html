@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{ form.title }}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; }
+    input, textarea { width: 100%; padding: 8px; margin: 4px 0 16px; box-sizing: border-box; }
+    .question { margin-bottom: 16px; }
+    label.opt { display: block; font-weight: normal; margin: 4px 0; }
+    button { padding: 10px 16px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>{{ form.title }}</h1>
+  <p>{{ form.description }}</p>
+
+  <form method="post" action="/f/{{ form.id }}/submit">
+    {% for question in form.questions %}
+      <div class="question">
+        <label><strong>{{ question.label }}</strong>{% if question.required %} *{% endif %}</label>
+
+        {% if question.field_type == 'textarea' %}
+          <textarea name="q_{{ question.id }}" rows="3" {% if question.required %}required{% endif %}></textarea>
+
+        {% elif question.field_type == 'radio' %}
+          {% for opt in question.options.split(',') %}
+            <label class="opt">
+              <input type="radio" name="q_{{ question.id }}" value="{{ opt.strip() }}" {% if question.required %}required{% endif %}>
+              {{ opt.strip() }}
+            </label>
+          {% endfor %}
+
+        {% elif question.field_type == 'checkbox' %}
+          {% for opt in question.options.split(',') %}
+            <label class="opt">
+              <input type="checkbox" name="q_{{ question.id }}" value="{{ opt.strip() }}">
+              {{ opt.strip() }}
+            </label>
+          {% endfor %}
+
+        {% else %}
+          <input type="text" name="q_{{ question.id }}" {% if question.required %}required{% endif %}>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html>

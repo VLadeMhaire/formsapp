@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Results — {{ form.title }}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 16px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
+    th { background: #f4f4f4; }
+  </style>
+</head>
+<body>
+  <h1>Results — {{ form.title }}</h1>
+  <p>{{ responses|length }} response(s)</p>
+
+  <table>
+    <tr>
+      <th>Submitted</th>
+      {% for q in form.questions %}<th>{{ q.label }}</th>{% endfor %}
+    </tr>
+    {% for r in responses %}
+      <tr>
+        <td>{{ r.submitted_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        {% for q in form.questions %}
+          <td>
+            {% set ans = (r.answers | selectattr('question_id', 'equalto', q.id) | list) %}
+            {{ ans[0].value if ans else '' }}
+          </td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>
